@@ -1,113 +1,168 @@
 package datamodel;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
+/**
+ * Repräsentiert Kund*innen mit ID, Namen und Kontaktliste.
+ */
 public class Customer {
 
+    /** Datenfelder (Standardwerte gemäss UML) */
+    private long id = -1;
+    private String lastName  = "";
+    private String firstName = "";
+    private final List<String> contacts = new ArrayList<>();
+
+    /** Parameterloser Standard-Konstruktor. */
     public Customer() { }
 
-    public Customer(String name) { }
+    /**
+     * Konstruktor mit Einzel-String-Name.
+     * @param name Vollständiger Name, der aufgesplittet wird
+     */
+    public Customer(String name) {
+        setName(name);
+    }
 
+    // ---------------------------------------------------------------------
+    // ID
+    // ---------------------------------------------------------------------
 
+    /** @return interne ID */
     public long getId() {
-        return 0L;
-    }
-
-    public Customer setId(long id) {
-        return this;
-    }
-
-    public String getLastName() {
-        return "";
-    }
-
-    public String getFirstName() {
-        return "";
-    }
-
-    public Customer setName(String first, String last) {
-        return this;
-    }
-
-    public Customer setName(String name) {
-        return this;
-    }
-
-    public int contactsCount() {
-        return 0;
-    }
-
-    public Iterable<String> getContacts() {
-        return java.util.List.of();
-    }
-
-    public Customer addContact(String contact) {
-        return this;
-    }
-
-    public void deleteContact(int i) {
-        throw new UnsupportedOperationException("method deleteContact(i) has not yet been implemented");
-    }
-
-    public void deleteAllContacts() {
-        throw new UnsupportedOperationException("method deleteAllContacts() has not yet been implemented");
+        return id;
     }
 
     /**
-     * Split single-String name into last- and first name parts according to
-     * rules:
-     * <ul>
-     * <li> if a name contains no seperators (comma or semicolon {@code [,;]}),
-     *      the trailing consecutive part is the last name, all prior parts
-     *      are first name parts, e.g. {@code "Tim Anton Schulz-Müller"}, splits
-     *      into <i>first name:</i> {@code "Tim Anton"} and <i>last name</i>
-     *      {@code "Schulz-Müller"}.
-     * <li> names with seperators (comma or semicolon {@code [,;]}) split into
-     *      a last name part before the seperator and a first name part after
-     *      the seperator, e.g. {@code "Schulz-Müller, Tim Anton"} splits into
-     *      <i>first name:</i> {@code "Tim Anton"} and <i>last name</i>
-     *      {@code "Schulz-Müller"}.
-     * <li> leading and trailing white spaces {@code [\s]}, commata {@code [,;]}
-     *      and quotes {@code ["']} must be trimmed from names, e.g.
-     *      {@code "  'Schulz-Müller, Tim Anton'    "}.
-     * <li> interim white spaces between name parts must be trimmed, e.g.
-     *      {@code "Schulz-Müller, <white-spaces> Tim <white-spaces> Anton <white-spaces> "}.
-     * </ul>
-     * <pre>
-     * Examples:
-     * +------------------------------------+-----------------------+-----------------------+
-     * |Single-String name                  |first name parts       |last name parts        |
-     * +------------------------------------+-----------------------+-----------------------+
-     * |"Eric Meyer"                        |"Eric"                 |"Meyer"                |
-     * |"Meyer, Anne"                       |"Anne"                 |"Meyer"                |
-     * |"Meyer; Anne"                       |"Anne"                 |"Meyer"                |
-     * |"Tim Schulz‐Mueller"                |"Tim"                  |"Schulz‐Mueller"       |
-     * |"Nadine Ulla Blumenfeld"            |"Nadine Ulla"          |"Blumenfeld"           |
-     * |"Nadine‐Ulla Blumenfeld"            |"Nadine‐Ulla"          |"Blumenfeld"           |
-     * |"Khaled Saad Mohamed Abdelalim"     |"Khaled Saad Mohamed"  |"Abdelalim"            |
-     * +------------------------------------+-----------------------+-----------------------+
-     * 
-     * Trim leading, trailing and interim white spaces and quotes:
-     * +------------------------------------+-----------------------+-----------------------+
-     * |" 'Eric Meyer'  "                   |"Eric"                 |"Meyer"                |
-     * |"Nadine     Ulla     Blumenfeld"    |"Nadine Ulla"          |"Blumenfeld"           |
-     * +------------------------------------+-----------------------+-----------------------+
-     * </pre>
-     * @param name single-String name to split into first- and last name parts
-     * @throws IllegalArgumentException if name argument is null or empty
+     * Setzt eine neue ID.
+     * @param id neue ID
+     * @return dieses Objekt (Fluent API)
+     */
+    public Customer setId(long id) {
+        this.id = id;
+        return this;
+    }
+
+    // ---------------------------------------------------------------------
+    // Namens­teile
+    // ---------------------------------------------------------------------
+
+    /** @return Nachname */
+    public String getLastName() {
+        return lastName;
+    }
+
+    /** @return Vorname(n) */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * Setzt Vor- und Nachname direkt.
+     * @param first Vorname(n)
+     * @param last  Nachname
+     * @return dieses Objekt (Fluent API)
+     */
+    public Customer setName(String first, String last) {
+        this.firstName = trim(Objects.requireNonNull(first));
+        this.lastName  = trim(Objects.requireNonNull(last));
+        return this;
+    }
+
+    /**
+     * Setzt Namen aus Einzel-String.
+     * @param name Vollständiger Name
+     * @return dieses Objekt (Fluent API)
+     */
+    public Customer setName(String name) {
+        splitName(name);
+        return this;
+    }
+
+    // ---------------------------------------------------------------------
+    // Kontakte
+    // ---------------------------------------------------------------------
+
+    /** @return Anzahl der Kontakte */
+    public int contactsCount() {
+        return contacts.size();
+    }
+
+    /** @return unveränderbare Sicht auf alle Kontakte */
+    public Iterable<String> getContacts() {
+        return Collections.unmodifiableList(contacts);
+    }
+
+    /**
+     * Fügt einen Kontakt hinzu.
+     * @param contact Kontakt-String
+     * @return dieses Objekt (Fluent API)
+     */
+    public Customer addContact(String contact) {
+        contacts.add(trim(Objects.requireNonNull(contact)));
+        return this;
+    }
+
+    /**
+     * Löscht Kontakt an gegebener Position.
+     * @param i Index
+     * @return 1 (gelöschte Elemente)
+     * @throws IndexOutOfBoundsException falls Index ungültig
+     */
+    public int deleteContact(int i) {
+        contacts.remove(i);
+        return 1;
+    }
+
+    /** Löscht alle Kontakte. */
+    public void deleteAllContacts() {
+        contacts.clear();
+    }
+
+    // ---------------------------------------------------------------------
+    // Hilfsmethoden
+    // ---------------------------------------------------------------------
+
+    /**
+     * Splittet Einzel-String-Name in Vor- und Nachnamen.
+     * Siehe README/JavaDoc für Regeln und Beispiele.
+     * @param name Einzel-String-Name
+     * @throws IllegalArgumentException falls {@code name} null/leer ist
      */
     public void splitName(String name) {
-        throw new UnsupportedOperationException("method splitName(name) has not yet been implemented");
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("name may not be null/empty");
+        }
+        String n = trim(name);
+        String[] parts;
+        if (n.contains(",") || n.contains(";")) {
+            parts = n.split("[,;]", 2);
+            lastName  = trim(parts[0]);
+            firstName = trim(parts[1]);
+        } else {
+            parts = n.split("\\s+");
+            if (parts.length == 1) {
+                firstName = "";
+                lastName  = parts[0];
+            } else {
+                lastName  = parts[parts.length - 1];
+                firstName = String.join(" ", java.util.Arrays.copyOf(parts, parts.length - 1));
+            }
+        }
     }
 
     /**
-     * Trim leading and trailing white spaces {@code [\s]}, commata {@code [,;]}
-     * and quotes {@code ["']} from a String (used for names and contacts).
-     * @param s String to trim
-     * @return trimmed String
+     * Entfernt führende/­nachgestellte Leerzeichen, Kommata, Semikola
+     * sowie einfache/doppelte Anführungs­zeichen.
+     * @param s zu trimmender String
+     * @return getrimmter String
      */
     private String trim(String s) {
-        s = s.replaceAll("^[\\s\"',;]*", "");   // trim leading white spaces[\s], commata[,;] and quotes['"]
-        s = s.replaceAll( "[\\s\"',;]*$", "");  // trim trailing accordingly
-        return s;
+        s = s.replaceAll("^[\\s\"',;]+", "");
+        s = s.replaceAll("[\\s\"',;]+$", "");
+        return s.trim().replaceAll("\\s{2,}", " ");
     }
 }
